@@ -1,0 +1,14 @@
+appid
+201214117357434
+
+secret
+d6e2a840bcf88c2a48a6199a939baffa
+
+<servlet>
+<servlet-name>myClockServlet</servlet-name>
+<servlet-class>HelloAppEngine</servlet-class>
+</servlet>
+<servlet-mapping>
+<servlet-name>race-latticeServlet</servlet-name>
+<url-pattern>/rare-lattice-202804</url-pattern>
+</servlet-mapping>

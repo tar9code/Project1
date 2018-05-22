@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Facebook Login JavaScript Example</title>
+<meta charset="UTF-8">
+<link href="../css/bootstrap.min.css" media="all" type="text/css" rel="stylesheet">
+<link href="../css/bootstrap-responsive.min.css" media="all" type="text/css" rel="stylesheet">
+<link href="../css/font-awesome.css" rel="stylesheet" >
+<link href="../css/nav-fix.css" media="all" type="text/css" rel="stylesheet">
+
+</head>
+<body>
+<script>
+  // This is called with the results from from FB.getLoginStatus().
+  function statusChangeCallback(response) {
+    console.log('statusChangeCallback');
+    console.log(response);
+    // The response object is returned with a status field that lets the
+    // app know the current login status of the person.
+    // Full docs on the response object can be found in the documentation
+    // for FB.getLoginStatus().
+    if (response.status === 'connected') {
+      // Logged into your app and Facebook.
+      testAPI();
+    } else {
+      // The person is not logged into your app or we are unable to tell.
+      document.getElementById('status').innerHTML = 'Please log ' +
+        'into this app.';
+    }
+  }
+
+  // This function is called when someone finishes with the Login
+  // Button.  See the onlogin handler attached to it in the sample
+  // code below.
+  function checkLoginState() {
+    FB.getLoginStatus(function(response) {
+      statusChangeCallback(response);
+    });
+  }
+
+  window.fbAsyncInit = function() {
+    FB.init({
+      appId      : '201214117357434',
+      cookie     : true,  // enable cookies to allow the server to access 
+                          // the session
+      xfbml      : true,  // parse social plugins on this page
+      version    : 'v3.0' // use graph api version 2.8
+    });
+
+    // Now that we've initialized the JavaScript SDK, we call 
+    // FB.getLoginStatus().  This function gets the state of the
+    // person visiting this page and can return one of three states to
+    // the callback you provide.  They can be:
+    //
+    // 1. Logged into your app ('connected')
+    // 2. Logged into Facebook, but not your app ('not_authorized')
+    // 3. Not logged into Facebook and can't tell if they are logged into
+    //    your app or not.
+    //
+    // These three cases are handled in the callback function.
+
+    FB.getLoginStatus(function(response) {
+      statusChangeCallback(response);
+    });
+
+  };
+
+  // Load the SDK asynchronously
+  (function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "https://connect.facebook.net/en_US/sdk.js";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));
+
+  // Here we run a very simple test of the Graph API after login is
+  // successful.  See statusChangeCallback() for when this call is made.
+  function testAPI() {
+    console.log('Welcome!  Fetching your information.... ');
+    FB.api('/me', function(response) {
+      console.log('Successful login for: ' + response.name);
+      document.getElementById('status').innerHTML =
+        'Thanks for logging in, ' + response.name + '!';
+      document.getElementById('userId').value = response.id;
+
+      document.getElementById('userId2').innerHTML = response.id;
+      var userId3 = response.id;
+      var userName3 = response.name;
+      var myImg3 = 
+    	  'https://graph.facebook.com/'+ response.id + '/picture';
+      document.getElementById('userName').value = response.name;
+
+      document.getElementById('username2').innerHTML = response.name;
+      document.getElementById('myImg').src = 
+    	  'https://graph.facebook.com/'+ response.id + '/picture';
+      document.getElementById('myImg2').value = 
+    	  'https://graph.facebook.com/'+ response.id + '/picture';
+    });
+    FB.api('/me', function(response) {
+        document.getElementById('birthday').innerHTML = response.birthday;
+        document.getElementById('image').innerHTML = response.cover;
+        document.getElementById('gender').innerHTML = response.gender;
+        document.getElementById('age').innerHTML = response.age_range;
+      });
+  }
+  function getFriends() {
+	    console.log('Welcome!  Fetching your information.... ');
+	    FB.api('/me/friends', function(response) {
+	      console.log('Friends list: ' + response.name);
+	      document.getElementById('status').innerHTML =
+	        'Thanks for logging in, ' + response.name + '!';
+	    });
+	  }
+</script>
+
+<!--
+  Below we include the Login Button social plugin. This button uses
+  the JavaScript SDK to present a graphical Login button that triggers
+  the FB.login() function when clicked.
+-->
+<div class="navbar navbar-fixed-top">
+	<div class="navbar-inner">
+    	<div class="container-fluid">
+      		<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+		        <span class="icon-bar"></span>
+		        <span class="icon-bar"></span>
+		        <span class="icon-bar"></span>
+      		</a>
+	      	<a class="brand" href="#">Tweeter for FB</a>
+	      	<div class="btn-group pull-right" id="welcome">
+	       		Welcome, <strong><a id="fullname"> </a> </strong> 
+            <fb:login-button size="large" autologoutlink="true" scope="public_profile,email,publish_actions,user_friends" onlogin="checkLoginState();">
+			</fb:login-button>                      
+	       	</div>
+	      	<div class="nav-collapse">
+	        <ul class="nav">
+	          <li class="active"><a href="#">Home</a></li>
+	          <li><a id="profile_link" target="_blank" href="#">Profile</a> </li>
+	          <li><a id="friends_tweet" href="./friends.jsp">Friends Tweet</a> </li>
+	          <li><a id="friends_top_tweets" href="./top_tweets.jsp">Top Tweets of Friends</a> </li>
+	        </ul>
+	      	</div><!--/.nav-collapse -->
+	  	</div>
+	</div>
+</div>
+    
+<fb:login-button scope="public_profile,email" onlogin="checkLoginState();">
+</fb:login-button>
+
+<div id="status">
+</div>
+<h1 style="color:#FFFF00;">Hello World</h1>
+<a href='/clock'>The servlet</a>
+
+<p style="color:#FFFF00;" id="date"></p>
+<script>
+var currentdate = new Date(); 
+var datetime = "Last Sync: " + currentdate.getDate() + "/"
+                + (currentdate.getMonth()+1)  + "/" 
+                + currentdate.getFullYear() + " @ "  
+                + currentdate.getHours() + ":"  
+                + currentdate.getMinutes() + ":" 
+                + currentdate.getSeconds();
+document.getElementById("date").innerHTML = datetime;
+</script>
+<meta http-equiv='refresh' content='100'> 
+<h1 style="color:#FFFF00;">Current date/Time: <span style="color:#FFFF00;"id="date"></span></h1>
+<h1>hi world, testing</h1>
+<p style="color:#FFFF00;" id="date"></p>
+<h1>user id below...</h1>
+<p style="color:#FFFF00;" id="userId"></p>
+<div id="userId2"></div>
+<div id="userName2"></div>
+<p style="color:#FFFF00;" id="userName"></p>
+<p style="color:#FFFF00;" id="gender"></p>
+<p style="color:#FFFF00;" id="age"></p>
+<p style="color:#FFFF00;" id="birthday"></p>
+<p style="color:#FFFF00;" id="image"></p>
+<img id = "myImg" src="https://www.w3schools.com/images/w3schools_green.jpg">
+
+<img id = "myImg2">
+<h1>user info above</h1>
+<h1>hello world...again</h1>
+
+<h1>my name is bob</h1>
+<button onclick="myFunction()">Publish to Facebook</button>
+<button onclick="getFriends()">get friends</button>
+<button onclick="updateImage()">pic</button>
+<script>
+function myFunction() {
+	FB.ui({   method: 'share',   href: 'https://developers.facebook.com/docs/', }, function(response){});
+}
+function updateImage() {
+	FB.api('/me', function(response) {
+	      document.getElementById('myImg').src = 
+	    	  'https://graph.facebook.com/'+ response.id + '/picture';
+	    });
+}
+</script>
+<form method="post" action="TweetServlet" name="post_tweet" id="post_tweet" accept-charset="UTF-8">        
+	<input type="text" name="userid" id="userid" value="temp" readonly/>
+	<input type="text" name="usern\ame" id="username" value="someName" readonly/>
+	<input type="text" name="picture" id="picture" value="someIMG" readonly/>       
+	<br>     
+	<script>
+	document.getElementById("userId").innerHTML = '1203984';
+	document.getElementById("userName").value = "bobby";
+	document.getElementById("myImg").value = 'theimg';
+	document.getElementById("userid").value = userId3;
+	document.getElementById("username").value = userName3;
+	document.getElementById("picture").value = myImg3;
+	</script>      
+	<textarea class="span4" id="tweet_text" name="tweet_text" rows="5" placeholder="Type in your new tweet"></textarea>
+	<input type="submit" name="post_btn" value="Post New Tweet" class="btn btn-info" onclick="myFunction()"/>
+	<input type="button" name="share_btn" value="Share with friends" class="btn btn-primary" onclick="shareTweet()"/>
+</form> 
+<script>
+document.write("hi there\n");
+document.write(userId3);
+document.write(userName3);
+document.write(myImg3);
+</script>
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Tweet</title>
+</head>
+<body>
+hi world...
+<script>
+// This is called with the results from from FB.getLoginStatus().
+function statusChangeCallback(response) {
+  console.log('statusChangeCallback');
+  console.log(response);
+  // The response object is returned with a status field that lets the
+  // app know the current login status of the person.
+  // Full docs on the response object can be found in the documentation
+  // for FB.getLoginStatus().
+  if (response.status === 'connected') {
+    // Logged into your app and Facebook.
+    testAPI();
+  } else {
+    // The person is not logged into your app or we are unable to tell.
+    document.getElementById('status').innerHTML = 'Please log ' +
+      'into this app.';
+  }
+}
+
+// This function is called when someone finishes with the Login
+// Button.  See the onlogin handler attached to it in the sample
+// code below.
+function checkLoginState() {
+  FB.getLoginStatus(function(response) {
+    statusChangeCallback(response);
+  });
+}
+
+window.fbAsyncInit = function() {
+  FB.init({
+    appId      : '201214117357434',
+    cookie     : true,  // enable cookies to allow the server to access 
+                        // the session
+    xfbml      : true,  // parse social plugins on this page
+    version    : 'v3.0' // use graph api version 2.8
+  });
+
+  // Now that we've initialized the JavaScript SDK, we call 
+  // FB.getLoginStatus().  This function gets the state of the
+  // person visiting this page and can return one of three states to
+  // the callback you provide.  They can be:
+  //
+  // 1. Logged into your app ('connected')
+  // 2. Logged into Facebook, but not your app ('not_authorized')
+  // 3. Not logged into Facebook and can't tell if they are logged into
+  //    your app or not.
+  //
+  // These three cases are handled in the callback function.
+
+  FB.getLoginStatus(function(response) {
+    statusChangeCallback(response);
+  });
+
+};
+
+// Load the SDK asynchronously
+(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "https://connect.facebook.net/en_US/sdk.js";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));
+
+function shareTweet() {
+	var text = document.getElementById("tweet_text").value
+	FB.ui({   method: 'share',   href: 'https://developers.facebook.com/docs/', 
+		quote: text}, function(response){});
+}
+function testAPI() {
+	FB.api('/me', function(response) {
+		document.getElementById('userid').innerHTML = response.id;
+		document.getElementById('username').value =  response.name.split(" ")[0];
+      	document.getElementById('picture').src = 
+	    	  'https://graph.facebook.com/'+ response.id + '/picture';
+      });
+}
+</script>
+<form method="post" action="TweetServlet" name="post_tweet" id="post_tweet" accept-charset="UTF-8">        
+	<input type="hidden" name="userid" id="userid" value=""/>
+	<input type="hidden" name="username" id="username" value=""/>
+	<input type="hidden" name="picture" id="picture" value=""/>       
+	<br>           
+	<textarea class="span4" id="tweet_text" name="tweet_text" rows="5" placeholder="Type in your new tweet"></textarea>
+	<input type="submit" name="post_btn" value="Post New Tweet" class="btn btn-info" onclick="shareTweet()"/>
+	<input type="button" name="share_btn" value="Share with friends" class="btn btn-primary" onclick="shareTweet()"/>
+</form>   
+<script>
+testAPI();
+</script>
+
+<div id="username">
+</div>
+<div class="span4 well" style="overflow-y: scroll; height:101%;">
+	<p>Currently Posted...</p>
+	<%
+	    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+	    // Run an ancestor query to ensure we see the most up-to-date
+	    // view of the Greetings belonging to the selected Guestbook.
+	    Query query = new Query("Tweet").addSort("date", Query.SortDirection.DESCENDING);
+	    query.addFilter("userid",
+	            Query.FilterOperator.EQUAL,
+	            userid);
+	    List<Entity> tweets = datastore.prepare(query).asList(FetchOptions.Builder.withChunkSize(2000));
+	    int num_tweets = tweets.size();
+	    if (tweets.isEmpty()) {
+	%>
+	<div class="alert alert-danger"> <p> No tweets to be shown yet</p>
+	</div>
+	<%
+		}
+		else { 
+	%>
+	<script type="text/javascript"> console.log(<%=num_tweets%>);document.getElementById("num_tweets").innerText = "<%=num_tweets%> tweets";</script>
+	<% 
+		for (Entity tweet : tweets) { 
+			String tweet_text =  (String) tweet.getProperty("text");
+			String tweet_date = (String) tweet.getProperty("date");
+			String key = KeyFactory.keyToString(tweet.getKey());
+			String href = "'view_tweet.jsp?tweet_key=" + key + "'";
+	%>
+	<div>
+	    <%=tweet_text%>
+	    <form method="post" action="Delete" name="delete_tweet" accept-charset="UTF-8">     
+	    <input type="hidden" name="tweet_key" id="tweet_key" value="<%=key%>"/>    
+	    <input type="submit" class="btn btn-danger" value="Delete"/>
+	    </form>
+	    <span class="badge pull-right">At <%=tweet_date%></span>
+	    <p>&nbsp;</p>
+	</div>    
+
+</div>
+</body>
+</html>
